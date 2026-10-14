@@ -87,22 +87,17 @@ def validation_loss(mlp):
     
     input = torch.cat((x_t, t),dim=1)
     output = mlp(input)
-    u_mean = u.mean().item()
-    u_scale = 1.0/u.std().item()
-    
-    target = (output - u_mean)*u_scale
         
     loss_function = torch.nn.MSELoss()
-    val_loss = loss_function(output, target).item()
+    val_loss = loss_function(output, u).item()
     return val_loss
 
 
 
-def optimizing_learning_rate():
+def optimizing_learning_rate(learn_rates):
     losses=[]
     val_losses=[]
     
-    learn_rates = np.geomspace(3e-4, 1e-1, 9)
          
     for lr in learn_rates:
         mlp = MLP()
@@ -114,13 +109,9 @@ def optimizing_learning_rate():
     losses = np.array(losses)
     val_losses = np.array(val_losses)
 
-    return losses, learn_rates, val_losses
+    return losses, val_losses
     
             
-
-
-
-
 
 @torch.no_grad()
 def euler_sampler(mlp, x):
