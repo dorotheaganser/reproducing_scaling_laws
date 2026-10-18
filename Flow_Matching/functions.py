@@ -112,6 +112,7 @@ def optimizing_learning_rate(learn_rates):
     return losses, val_losses
     
             
+    losses=[]
 
 @torch.no_grad()
 def euler_sampler(mlp, x):
