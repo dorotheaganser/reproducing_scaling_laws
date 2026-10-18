@@ -117,6 +117,7 @@ def optimizing_learning_rate():
     return losses, learn_rates, val_losses
     
             
+    losses=[]
 
 
 
