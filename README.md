@@ -1,14 +1,14 @@
 # Flow Matching & Scaling Laws
 
-This repository contains a minimal **1D flow matching demo** and an attempt to apply **scaling-law analysis** (learning-rate tuning) to it. It also includes scripts that reproduce Matthias's scaling-law experiments, which served as the reference for this analysis.
+This repository contains a **1D flow matching demo** and an attempt to apply **scaling-law analysis** (learning-rate tuning) to it. It also includes scripts that reproduce Matthias's scaling-law experiments, which served as the reference for this analysis.
 
 ## Repository structure
 
 ```
 .
 ├── Flow_Matching/
-│   ├── Flow_Matching.ipynb      # Main notebook: experiments, sweeps, final model, visualizations
-│   ├── functions.py             # Core logic: model, training, validation, sampling, LR sweeps
+│   ├── Flow_Matching.ipynb      # Main notebook: experiments, final model, visualizations
+│   ├── functions.py             # Core logic: model, training, validation, sampling, optimazation
 │   └── plot.py                  # All plotting / visualization functions
 ├── Scaling_Laws/
 │   ├── Scaling_Laws_Reproduction.ipynb
@@ -43,7 +43,6 @@ The demo learns a velocity field that transports a source distribution to a targ
 
 | Function | Purpose |
 |---|---|
-| `plot_losses` | Validation loss vs. learning rate |
 | `plot_stacked_losses_errorbar` | Stacked plots for different learning-rate ranges, with error bars (mean ± std over runs) and the number of training steps in the title |
 | `plot_samples_n_trajectories` | Histogram of generated samples against the target density, plus the learned vector field with sampled trajectories |
 
@@ -60,10 +59,7 @@ Error bars show the standard deviation over runs with different random seeds. Th
 ## Scaling-law reproduction (`Scaling_Laws/`)
 
 Notebooks that reproduce Matthias's scaling-law experiments: a teacher-student setup where a student MLP is trained on the outputs of a fixed random teacher MLP, and the optimal learning rate is found by fitting a parabola to the validation loss in `log10(learning rate)`.
-
-## Status
-
-The scaling-law analysis has been applied to the flow matching demo, but the **parabolic shape of the validation loss as a function of the learning rate cannot be observed clearly yet** in this demo. The loss is flat over a wide range of learning rates and becomes unstable at high learning rates.
+In 'Scaling_Laws_Reproduction_scheduler_exp' 
 
 ## Setup
 
@@ -72,9 +68,3 @@ pip install numpy torch matplotlib scipy
 ```
 
 Then open `Flow_Matching/Flow_Matching.ipynb` in Jupyter or VS Code and run the cells from top to bottom.
-
-For faster sweeps on small networks it can help to limit PyTorch's threads:
-
-```python
-torch.set_num_threads(1)
-```

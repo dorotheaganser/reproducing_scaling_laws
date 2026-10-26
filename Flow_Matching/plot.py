@@ -3,20 +3,40 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
 
-def plot_losses(learning_rates, val_losses):
-    fig, ax = plt.subplots(figsize=(14, 6))
-    
-    ax.plot(learning_rates, val_losses, "o", color="steelblue", label="measured")
-    ax.set_xscale("log")
-    ax.set_xlabel("Learning rate")
-    ax.set_ylabel("Validation loss")
-    ax.set_title("Validation Loss vs. Lernrate")
-    ax.legend()
+def plot_stacked_losses_errorbar(learn_rates_list, val_losses_list, val_stds_list=None,
+                        titles=None, figsize=(10, 6),
+                        sharex=False, sharey=False, n_train_steps=None, n_seeds=None):
+    #für drei gestackte plots brauchen wir dann wieder figsize=(5, 7), for one plot figsize=(10,6)
+    n = len(learn_rates_list)
+    fig, axes = plt.subplots(n, 1, figsize=figsize, sharex=sharex, sharey=sharey)
+    if n == 1:
+        axes = [axes]
+
+    for i, ax in enumerate(axes):
+        yerr = None if val_stds_list is None else val_stds_list[i]
+        ax.errorbar(learn_rates_list[i], val_losses_list[i], yerr=yerr,
+                    fmt="o", color="steelblue", markersize=5,
+                    capsize=3, label="mean ± std")
+        ax.set_xscale("log")
+        ax.set_ylabel("Validation loss")
+        ax.legend()
+        if titles is not None:
+            ax.set_title(titles[i])
+
+    axes[-1].set_xlabel("Learning rate")
+
+    fig.tight_layout(rect=[0, 0, 1, 0.96])   # oberen 4 % für den Supertitle freihalten
+
+    info = []
+    if n_train_steps is not None:
+        info.append(f" flowmatching: {n_train_steps} training steps")
+    if n_seeds is not None:
+        info.append(f"{n_seeds} seeds")
+    if info:
+        fig.suptitle(", ".join(info), fontsize=10)
 
     plt.show()
-
-
-
+    return fig, axes
 '''
 Visualizing the results
 Plotting Histogramm of end distribution and plot trajectories of start to end distribution

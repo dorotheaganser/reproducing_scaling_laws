@@ -78,7 +78,7 @@ def train_flowmatching(mlp, lr, n_train_steps=1000, n_batch=256):
 
 @torch.no_grad()
 def validation_loss(mlp):
-    val_gen = torch.Generator().manual_seed(12876)
+    val_gen = torch.Generator().manual_seed(12876+10)
     x0_val = torch.randn(1000, 1, generator=val_gen)
     x1_val = 2+ 2*torch.randn(1000, 1, generator=val_gen)
     t = torch.rand(1000, 1, generator=val_gen)
@@ -93,26 +93,18 @@ def validation_loss(mlp):
     return val_loss
 
 
-
-def optimizing_learning_rate(learn_rates):
-    losses=[]
-    val_losses=[]
-    
-         
+def optimizing_learning_rate_seeds(learn_rates, n_seeds=5, n_train_steps=1000):
+    val_means, val_stds = [], []
     for lr in learn_rates:
-        mlp = MLP()
-        mlp, loss = train_flowmatching(mlp,lr)
-        losses.append(loss)
-        #loss_lr.append(losses[-1])
-        val_losses.append(validation_loss(mlp))
-
-    losses = np.array(losses)
-    val_losses = np.array(val_losses)
-
-    return losses, val_losses
-    
-            
-    losses=[]
+        vals = []
+        for seed in range(n_seeds):
+            torch.manual_seed(345234+10+seed)          # steuert Initialisierung + Trainingsrauschen
+            mlp = MLP()
+            mlp, _ = train_flowmatching(mlp, lr, n_train_steps=n_train_steps)
+            vals.append(validation_loss(mlp))   # fester Validierungsdatensatz
+        val_means.append(np.mean(vals))
+        val_stds.append(np.std(vals))
+    return np.array(val_means), np.array(val_stds)
 
 @torch.no_grad()
 def euler_sampler(mlp, x):
